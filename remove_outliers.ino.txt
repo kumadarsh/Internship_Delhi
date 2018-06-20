@@ -1,0 +1,83 @@
+#define S0 8
+#define S1 9
+#define S2 11
+#define S3 12
+#define sensorOut_1 10
+#define sensorOut_2 13
+#define led 2
+ double greenavg_1 = 0;
+ double greenavg_2 = 0;
+ int i, c_1 =0, c_2=0;
+ int a[10],b[10];
+ double mean_1 = 0.0, mean_2 = 0.0, stddev_1 = 0.0 , stddev_2 = 0.0;
+
+
+  void setup() {
+  pinMode(S0, OUTPUT);
+  pinMode(S1, OUTPUT);
+  pinMode(S2, OUTPUT);
+  pinMode(S3, OUTPUT);
+  pinMode(sensorOut_1, INPUT);
+  pinMode(sensorOut_2 , INPUT);
+  pinMode(led,  OUTPUT);
+  digitalWrite(S0,HIGH);
+  digitalWrite(S1,HIGH);
+  digitalWrite(led,HIGH);
+  Serial.begin(9600);
+}
+void loop()
+{
+  digitalWrite(S2,HIGH);
+  digitalWrite(S3,HIGH);
+
+    for (i=0; i<10; i++){
+        a[i] = pulseIn(sensorOut_1, LOW);
+        b[i] = pulseIn(sensorOut_2, LOW);
+        mean_1 += a[i];
+        mean_2 += b[i];
+    }
+    mean_1 /= 10;
+    mean_2 /= 10;
+    
+    for(i = 0; i < 10; i++)
+    {
+        stddev_1 += pow(a[i] - mean_1,2);
+        stddev_2 += pow(b[i] - mean_2,2);
+    }
+    stddev_1 /= 10;
+    stddev_2 /= 10;
+    stddev_1 = pow(stddev_1,0.5);
+    stddev_2 = pow(stddev_2,0.5);
+    for (i=0; i<10; i++)
+    {
+        if (a[i]>=(mean_1-stddev_1) && a[i]<=(mean_1+stddev_1))
+        {
+        greenavg_1 += a[i]; 
+        c_1++;
+        }
+        if (b[i]>=(mean_2 - stddev_2) && b[i]<=(mean_2 + stddev_2))
+        {
+        greenavg_2 += b[i]; 
+        c_2++;
+        }
+    }
+    delay(100);
+    Serial.print("G_1 = ");
+    Serial.print(" ");
+    Serial.print(greenavg_1/c_1);
+    Serial.print(" G_2 = ");
+    Serial.print(" ");
+    Serial.print(greenavg_2/c_2);
+    Serial.print(" ");
+    Serial.print(greenavg_2/c_2); 
+    c_1 = 0;
+    c_2 = 0;
+    greenavg_1 = 0;
+    greenavg_2 = 0;
+    mean_1 = 0.0;
+    mean_2 = 0.0;
+    stddev_1 = 0.0;
+    stddev_2 = 0.0;
+    
+}
+
